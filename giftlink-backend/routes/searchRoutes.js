@@ -6,35 +6,37 @@ const connectToDatabase = require('../models/db');
 router.get('/', async (req, res, next) => {
     try {
         // Task 1: Connect to MongoDB using connectToDatabase database. Remember to use the await keyword and store the connection in `db`
-        // {{insert code here}}
+        const db = await connectToDatabase(); // Conecta-se ao MongoDB
 
         const collection = db.collection("gifts");
 
         // Initialize the query object
         let query = {};
 
-        // Add the name filter to the query if the name parameter is not empty
-        // if (/* {{insert code here}} */) {
-            query.name = { $regex: req.query.name, $options: "i" }; // Using regex for partial match, case-insensitive
-        // }
+        // Task 2: Check if the name exists and is not empty
+        // Use a hint: req.query.name && req.query.name.trim() !== ''
+        if (req.query.name && req.query.name.trim() !== '') {
+            query.name = { $regex: req.query.name, $options: "i" }; // Usando regex para correspondência parcial, insensível a maiúsculas/minúsculas
+        }
 
         // Task 3: Add other filters to the query
         if (req.query.category) {
-            // {{insert code here}}
+            query.category = req.query.category; // Adiciona filtro por categoria
         }
         if (req.query.condition) {
-            // {{insert code here}} 
+            query.condition = req.query.condition; // Adiciona filtro por condição
         }
         if (req.query.age_years) {
-            // {{insert code here}}
-            query.age_years = { $lte: parseInt(req.query.age_years) };
+            // A dica para age_years já estava no seu código, está correto.
+            query.age_years = { $lte: parseInt(req.query.age_years) }; // Filtro por idade (menor ou igual a)
         }
 
         // Task 4: Fetch filtered gifts using the find(query) method. Make sure to use await and store the result in the `gifts` constant
-        // {{insert code here here}}
+        const gifts = await collection.find(query).toArray(); // Busca os presentes com base no objeto de query
 
         res.json(gifts);
     } catch (e) {
+        console.error('Error in search endpoint:', e); // Adicionado log de erro para este endpoint
         next(e);
     }
 });

@@ -1,19 +1,93 @@
 /* Task 1: Style the body */
 body {
-    /* insert code here */
+    font-family: 'Montserrat', sans-serif; /* Define a fonte */
+    margin: 0; /* Remove margem padrão */
+    padding: 0; /* Remove preenchimento padrão */
+    height: 100vh; /* Ocupa 100% da altura da viewport */
+    display: flex; /* Usa Flexbox para centralizar o conteúdo */
+    align-items: center; /* Centraliza verticalmente */
+    justify-content: center; /* Centraliza horizontalmente */
+    overflow: hidden; /* Esconde qualquer overflow, importante para o fundo */
+    background-color: #f4f4f4; /* Cor de fundo de fallback */
+    position: relative; /* Necessário para o pseudo-elemento ::before */
 }
 
 /* Task 2: Create a pseudo-element for the background and blur */
 body::before {
-    /* insert code here */
+    content: ""; /* Essencial para pseudo-elementos */
+    position: fixed; /* Fixa o fundo na viewport */
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: url('/static/background-image.jpg') no-repeat center center/cover; /* Imagem de fundo, sem repetição, centralizada, cobrindo */
+    filter: blur(8px); /* Aplica um efeito de desfoque */
+    z-index: -1; /* Coloca o fundo atrás do conteúdo principal */
 }
 
 /* Task 3: Style the content area */
-.content {
-    /* insert code here */
+/* Nota: O teu home.html usa a classe 'container' e 'text-center'. 
+         Vou assumir que 'content' é uma classe que deverias adicionar ou que o 'container' 
+         será o teu 'content' em termos de estilo. Se 'content' não estiver no HTML, 
+         substitui por '.container' ou adiciona a classe no HTML.
+         Pelo template, o div principal já tem 'container my-5' e dentro dele 'text-center'.
+         Vou estilizar o '.text-center' que já contém o conteúdo.
+         Se quiseres uma caixa separada, terás de adicionar <div class="content"> no home.html.
+         Assumindo que '.text-center' é o content area:
+*/
+.text-center { /* Ou .content se adicionares essa classe ao HTML */
+    position: relative; /* Para z-index funcionar */
+    z-index: 1; /* Garante que o conteúdo esteja acima do fundo borrado */
+    text-align: center; /* Já está no HTML, mas para garantir */
+    color: #333; /* Cor do texto principal */
+    max-width: 700px; /* Largura máxima para o conteúdo */
+    padding: 40px; /* Espaçamento interno */
+    background: rgba(255, 255, 255, 0.85); /* Fundo branco semi-transparente */
+    border-radius: 10px; /* Cantos arredondados */
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2); /* Sombra para profundidade */
 }
 
 /* Task 4: Add styles for headings, paragraphs, and buttons */
-h1, h2, .lead, .btn-primary {
-    /* insert code here */
+h1 {
+    color: #007bff; /* Cor primária para o título */
+    font-weight: 700; /* Negrito para o título */
+    margin-bottom: 20px; /* Margem extra para o título */
+}
+
+h2 {
+    color: #555; /* Cor um pouco mais escura para o subtítulo */
+    font-weight: 400; /* Peso normal */
+    margin-bottom: 30px; /* Margem extra para o subtítulo */
+}
+
+.lead { /* Estilo para o parágrafo da citação */
+    font-size: 1.25rem; /* Tamanho de fonte maior */
+    color: #666; /* Cor cinzenta para a citação */
+    line-height: 1.6; /* Espaçamento entre linhas */
+    margin-bottom: 40px; /* Margem para o botão */
+}
+
+.btn-primary { /* Estilo para o botão "Get Started" */
+    background-color: #007bff; /* Cor de fundo do botão primário */
+    border-color: #007bff; /* Cor da borda do botão primário */
+    color: #fff; /* Cor do texto do botão */
+    padding: 12px 30px; /* Preenchimento interno do botão */
+    font-size: 1.1rem; /* Tamanho da fonte do botão */
+    border-radius: 50px; /* Cantos arredondados para um visual de "pílula" */
+    transition: background-color 0.3s ease, border-color 0.3s ease, transform 0.2s ease; /* Transição suave ao passar o mouse */
+    text-transform: uppercase; /* Texto em maiúsculas */
+    letter-spacing: 1px; /* Espaçamento entre letras */
+    box-shadow: 0 2px 5px rgba(0, 123, 255, 0.2); /* Sombra subtil */
+}
+
+.btn-primary:hover {
+    background-color: #0056b3; /* Cor mais escura ao passar o mouse */
+    border-color: #0056b3; /* Borda mais escura ao passar o mouse */
+    transform: translateY(-2px); /* Efeito de "levantar" ao passar o mouse */
+    box-shadow: 0 4px 10px rgba(0, 123, 255, 0.3); /* Sombra mais pronunciada */
+}
+
+/* Para garantir que o container do Bootstrap não cause problemas de layout com o flexbox do body */
+.container {
+    padding: 0; /* Remover padding padrão do container se já estiver a usar o .text-center para padding */
 }

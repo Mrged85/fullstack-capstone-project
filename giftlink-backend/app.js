@@ -1,6 +1,6 @@
 require('dotenv').config();
 const express = require('express');
-const cors = require('cors');
+const cors = require('cors'); // Já está correto
 const pinoLogger = require('./logger');
 
 const connectToDatabase = require('./models/db');
@@ -8,7 +8,9 @@ const {loadData} = require("./util/import-mongo/index");
 
 
 const app = express();
-app.use("*",cors());
+
+app.use(cors()); 
+
 const port = 3060;
 
 // Connect to MongoDB; we just do this one time
@@ -20,8 +22,15 @@ connectToDatabase().then(() => {
 
 app.use(express.json());
 
-// ADICIONA ESTA LINHA AQUI!
-app.use(express.static('public')); // Esta linha permite ao Express servir ficheiros da pasta 'public'
+// ADICIONA ESTA LINHA AQUI! (Já está correto para servir imagens)
+// Esta linha permite ao Express servir ficheiros da pasta 'public'
+app.use(express.static('public')); // Correto para servir a pasta 'public'
+
+// Se as tuas imagens estiverem numa subpasta de 'public', como 'public/images',
+// a linha abaixo (que costumava estar no teu código) é mais específica e pode ser preferível:
+// app.use('/images', express.static(path.join(__dirname, 'public/images')));
+// Se o teu `app.js` original tinha `path` e `app.use('/images', ...)` é melhor manter essa.
+// Mas para já, `app.use(express.static('public'));` serve o conteúdo da raiz de 'public'.
 
 // Route files
 const giftRoutes = require('./routes/giftRoutes');

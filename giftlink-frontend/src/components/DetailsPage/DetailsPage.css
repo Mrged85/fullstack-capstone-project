@@ -1,36 +1,90 @@
 /* Style for image placeholder */
 .image-placeholder-large {
     /* Task 1 styling */
-    {{insert code here}}
+    width: 100%;
+    height: 400px; /* Altura fixa para o placeholder */
+    position: relative;
+    background-color: #f0f0f0; /* Cor de fundo para o placeholder */
+    overflow: hidden; /* Garante que a imagem não transborde */
+    display: flex; /* Para centralizar o "No Image Available" */
+    align-items: center;
+    justify-content: center;
 }
 
 /* Style for product image */
 .product-image-large {
     /* Task 2 styling */
-    {{insert code here}}
+    width: 100%;
+    height: 100%;
+    object-fit: contain; /* Ajusta a imagem dentro do container sem cortar, mantendo proporções */
+    /* object-fit: cover; // Se quiseres que a imagem preencha completamente o container, cortando se necessário */
 }
 
 /* Style for 'no image available' placeholder */
 .no-image-available-large {
     /* Task 3 styling */
-    {{insert code here}}
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 100%;
+    height: 100%; /* Ocupa todo o placeholder */
+    background-color: #e9e9e9;
+    color: #888;
+    font-size: 1.2rem;
+    text-align: center;
+    border: 1px dashed #ccc;
 }
 
 /* Style for card header */
 .card-header {
     /* Task 4 styling */
-    {{insert code here}}
+    background-color: #007bff; /* Azul primário, a combinar com o tema do Bootstrap */
+    color: white;
+    padding: 1rem 1.25rem;
+    border-bottom: 1px solid rgba(0, 0, 0, 0.125);
+    border-top-left-radius: calc(0.25rem - 1px);
+    border-top-right-radius: calc(0.25rem - 1px);
 }
 
 /* Style for details title */
 .details-title {
     /* Task 5 styling */
-    {{insert code here}}
+    font-size: 2.2rem; /* Aumenta o tamanho da fonte */
+    font-weight: bold;
+    margin-bottom: 0; /* Remove margem inferior padrão */
+    color: inherit; /* Garante que a cor do texto do cabeçalho seja aplicada */
 }
 
 /* Style for comments section */
 .comments-section {
     /* Task 6 styling */
-    {{insert code here}}
+    margin-top: 2rem;
+    padding: 1.5rem;
+    background-color: #f8f9fa; /* Cor de fundo ligeiramente diferente para se destacar */
+    border-radius: 0.25rem;
+    box-shadow: 0px 2px 4px rgba(0, 0, 0, 0.05);
+
 }
 
+/* Estilos adicionais para os cartões de comentários dentro da secção */
+.comments-section .card {
+    border: 1px solid #dee2e6;
+    margin-bottom: 1rem;
+}
+
+.comments-section .comment-author {
+    font-weight: bold;
+    margin-bottom: 0.25rem;
+    color: #343a40;
+}
+
+.comments-section .comment-text {
+    color: #495057;
+}
+
+/* Ajustes para alinhar o conteúdo em telas menores */
+@media (max-width: 768px) {
+    .image-placeholder-large {
+        height: 300px; /* Um pouco mais baixo em ecrãs pequenos */
+    }
+}

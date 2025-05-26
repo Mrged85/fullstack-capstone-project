@@ -1,6 +1,5 @@
 import React, { useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import { urlConfig } from '../../config'; // Caminho para config.js, ajustado para a tua estrutura de components
 import { useAppContext } from '../../context/AuthContext'; // Caminho para AuthContext.js, ajustado para a tua estrutura de components
 
 export default function Navbar() {

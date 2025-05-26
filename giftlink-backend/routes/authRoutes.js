@@ -1,7 +1,7 @@
 const express = require('express');
 const bcryptjs = require('bcryptjs');
 const jwt = require('jsonwebtoken');
-const { body, validationResult } = require('express-validator');
+const { body, validationResult } = require('express-validator'); // Já está aqui, bom!
 const connectToDatabase = require('../models/db');
 const router = express.Router();
 const dotenv = require('dotenv');
@@ -13,7 +13,7 @@ dotenv.config();
 
 const JWT_SECRET = process.env.JWT_SECRET;
 
-// Rota de Registo (mantida igual à tua versão otimizada)
+// Rota de Registo
 router.post(
     '/register',
     [
@@ -58,7 +58,6 @@ router.post(
 
             const authtoken = jwt.sign(payload, JWT_SECRET, { expiresIn: '1h' });
             logger.info('User registered successfully');
-            // Retorna também firstName e lastName para o frontend, conforme o que o frontend espera na sessionStorage
             res.status(201).json({ authtoken, email: req.body.email, firstName: req.body.firstName, lastName: req.body.lastName });
         } catch (e) {
             logger.error('Error during user registration:', e);
@@ -67,7 +66,7 @@ router.post(
     }
 );
 
-// MÓDULO DE LOGIN - Step 1: Implement the /login Endpoint (Corrigido)
+// MÓDULO DE LOGIN
 router.post(
     '/login',
     [ // Validação para o login
@@ -82,47 +81,130 @@ router.post(
         }
 
         try {
-            // Task 1: Connect to `giftsdb` in MongoDB through `connectToDatabase` in `db.js`.
             const db = await connectToDatabase();
-            // Task 2: Access MongoDB `users` collection
             const collection = db.collection("users");
 
             const { email, password } = req.body;
 
-            // Task 3: Check for user credentials in database
-            // Task 7: Send appropriate message if user not found (ajustado para status 404 e mensagem do hint)
             const theUser = await collection.findOne({ email });
             if (!theUser) {
                 logger.warn(`Login attempt with non-existent email: ${email}`);
-                return res.status(404).json({ error: 'User not found' }); // Mensagem do hint
+                return res.status(404).json({ error: 'User not found' });
             }
 
-            // Task 4: Check if the password matches the encrypted password and send appropriate message on mismatch
             let result = await bcryptjs.compare(password, theUser.password);
             if (!result) {
                 logger.warn(`Login attempt with incorrect password for user: ${email}`);
-                return res.status(400).json({ error: 'Wrong password' }); // Mensagem do hint
+                return res.status(400).json({ error: 'Wrong password' });
             }
 
-            // Task 5: Fetch user details from database
-            const userName = theUser.firstName; // Obter o nome do utilizador para enviar ao frontend
+            const userName = theUser.firstName;
             const userEmail = theUser.email;
 
-            // Task 6: Create JWT authentication if passwords match with user._id as payload
             const payload = {
                 user: {
-                    id: theUser._id.toString(), // Converter ObjectId para string, conforme o hint
+                    id: theUser._id.toString(),
                 },
             };
 
             const authtoken = jwt.sign(payload, JWT_SECRET, { expiresIn: '1h' });
             logger.info(`User logged in successfully: ${userEmail}`);
-            // Enviar authtoken, userName e userEmail para o frontend
             res.json({ authtoken, userName, userEmail });
 
         } catch (e) {
             logger.error('Error during user login:', e);
             res.status(500).send('Internal server error');
+        }
+    }
+);
+
+// NOVO ENDPOINT: /update
+router.put(
+    '/update',
+    [
+        // Validação para os campos que podem ser atualizados
+        body('firstName').optional().notEmpty().withMessage('O nome próprio não pode estar vazio.'),
+        body('lastName').optional().notEmpty().withMessage('O apelido não pode estar vazio.'),
+        body('password').optional().isLength({ min: 6 }).withMessage('A password deve ter pelo menos 6 caracteres.'),
+        // Adiciona validações para outros campos que permitas atualizar, se aplicável
+    ],
+    async (req, res) => {
+        // Tarefa 2: Validar o input usando `validationResult` e retornar a mensagem apropriada se houver um erro.
+        const errors = validationResult(req);
+        if (!errors.isEmpty()) {
+            logger.error('Validation errors in update request', errors.array());
+            return res.status(400).json({ errors: errors.array() });
+        }
+
+        try {
+            // Tarefa 3: Verificar se `email` está presente no cabeçalho e lançar uma mensagem de erro apropriada se não estiver presente.
+            const email = req.headers.email; // O email do utilizador a atualizar vem no header
+
+            if (!email) {
+                logger.error('Email not found in the request headers for update');
+                return res.status(400).json({ error: "Email not found in the request headers" });
+            }
+
+            // Tarefa 4: Conectar ao MongoDB
+            const db = await connectToDatabase();
+            const collection = db.collection("users");
+
+            // Tarefa 5: Encontrar as credenciais do utilizador na base de dados
+            let existingUser = await collection.findOne({ email });
+
+            if (!existingUser) {
+                logger.error(`User not found for update: ${email}`);
+                return res.status(404).json({ error: "User not found" });
+            }
+
+            // Construir o objeto com os campos a serem atualizados
+            const updateFields = {};
+            if (req.body.firstName) updateFields.firstName = req.body.firstName;
+            if (req.body.lastName) updateFields.lastName = req.body.lastName;
+            if (req.body.password) {
+                // Encriptar a nova password se for fornecida
+                const salt = await bcryptjs.genSalt(10);
+                updateFields.password = await bcryptjs.hash(req.body.password, salt);
+            }
+            // Garantir que createdAt existe (útil se o schema mudar) e atualizar updatedAt
+            if (!existingUser.createdAt) {
+                updateFields.createdAt = existingUser.createdAt || new Date();
+            }
+            updateFields.updatedAt = new Date(); // Definir/atualizar a data de atualização
+
+            // Tarefa 6: Atualizar as credenciais do utilizador na base de dados
+            const updatedDocument = await collection.findOneAndUpdate(
+                { email }, // Filtro para encontrar o utilizador
+                { $set: updateFields }, // Campos a serem atualizados
+                { returnDocument: 'after' } // Retorna o documento após a atualização
+            );
+
+            // Verificar se a atualização foi bem-sucedida
+            if (!updatedDocument.value) {
+                logger.error(`Failed to update user: ${email}`);
+                return res.status(500).json({ error: "Failed to update user" });
+            }
+
+            // Tarefa 7: Criar autenticação JWT com user._id como payload usando a chave secreta do ficheiro .env
+            const payload = {
+                user: {
+                    id: updatedDocument.value._id.toString(), // Usar o ID do documento atualizado
+                },
+            };
+
+            const authtoken = jwt.sign(payload, JWT_SECRET, { expiresIn: '1h' }); // Token válido por 1 hora
+
+            logger.info(`User profile updated successfully: ${email}`);
+            // Retorna o novo token e os detalhes atualizados do utilizador
+            res.json({
+                authtoken,
+                userName: updatedDocument.value.firstName, // Devolve o nome atualizado
+                userEmail: updatedDocument.value.email // Devolve o email (que não é alterado por esta rota)
+            });
+
+        } catch (e) {
+            logger.error('Error during user profile update:', e);
+            return res.status(500).send('Internal server error');
         }
     }
 );

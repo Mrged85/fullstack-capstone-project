@@ -56,11 +56,13 @@ app.use((err, req, res, next) => {
     res.status(500).send('Internal Server Error');
 });
 
+// **--- LINHAS CORRIGIDAS ABAIXO ---**
 app.get("/",(req,res)=>{
-    res.send("Inside the server")
-})
+    res.send("Inside the server"); // Adicionado ;
+}); // Adicionado ;
 
 app.listen(port, () => {
-    console.log(`Server running on port ${port}`); // Este log inicial pode continuar no console
-    pinoLogger.info(`Server running on port ${port}`); // Ou usar o pinoLogger para consistência
-});
+    console.log(`Server running on port ${port}`);
+    pinoLogger.info(`Server running on port ${port}`);
+}); // Adicionado ;
+// **--- LINHAS CORRIGIDAS ACIMA ---**

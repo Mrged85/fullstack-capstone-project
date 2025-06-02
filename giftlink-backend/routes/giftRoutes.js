@@ -1,3 +1,4 @@
+/*jshint esversion: 8 */ // Adicionado para suportar ES8 (const, arrow functions, async/await)
 const express = require('express');
 const router = express.Router();
 const connectToDatabase = require('../models/db');
@@ -13,7 +14,8 @@ router.get('/', async (req, res, next) => {
         const gifts = await collection.find({}).toArray();
         res.json(gifts);
     } catch (e) {
-        logger.console.error('oops something went wrong', e)
+        // Correção: Alterado logger.console.error para logger.error e adicionado ponto e vírgula
+        logger.error('oops something went wrong', e);
         next(e);
     }
 });

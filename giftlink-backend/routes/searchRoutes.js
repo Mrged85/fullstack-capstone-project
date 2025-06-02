@@ -1,3 +1,4 @@
+/*jshint esversion: 8 */ // Adicionado para suportar ES8 (const, let, arrow functions, async/await)
 const express = require('express');
 const router = express.Router();
 const connectToDatabase = require('../models/db');

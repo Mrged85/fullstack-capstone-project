@@ -7,19 +7,18 @@ function MainPage() {
     const navigate = useNavigate();
 
     useEffect(() => {
-        // fetch all gifts
         const fetchGifts = async () => {
             try {
-                let url = `${urlConfig.backendUrl}/api/gifts`;
+                const url = `${urlConfig.backendUrl}/api/gifts`;
                 const response = await fetch(url);
                 if (!response.ok) {
-                    //something went wrong
                     throw new Error(`HTTP error; ${response.status}`);
                 }
                 const data = await response.json();
+                console.log('Gifts fetched:', data); // 👈 útil para confirmar que `image` vem presente
                 setGifts(data);
             } catch (error) {
-                console.log('Fetch error: ' + error.message);
+                console.error('Fetch error:', error.message);
             }
         };
 
@@ -32,11 +31,15 @@ function MainPage() {
 
     const formatDate = (timestamp) => {
         const date = new Date(timestamp * 1000);
-        return date.toLocaleString('default', { month: 'long', day: 'numeric', year: 'numeric' });
+        return date.toLocaleString('default', {
+            month: 'long',
+            day: 'numeric',
+            year: 'numeric'
+        });
     };
 
     const getConditionClass = (condition) => {
-        return condition === "New" ? "list-group-item-success" : "list-group-item-warning";
+        return condition === 'New' ? 'list-group-item-success' : 'list-group-item-warning';
     };
 
     return (
@@ -47,8 +50,11 @@ function MainPage() {
                         <div className="card product-card">
                             <div className="image-placeholder">
                                 {gift.image ? (
-                                    // A LINHA CORRIGIDA ESTÁ AQUI:
-                                    <img src={`${urlConfig.backendUrl}${gift.image}`} alt={gift.name} />
+                                    <img
+                                        src={`${urlConfig.backendUrl}${gift.image}`}
+                                        alt={gift.name}
+                                        className="card-img-top"
+                                    />
                                 ) : (
                                     <div className="no-image-available">No Image Available</div>
                                 )}
@@ -63,7 +69,10 @@ function MainPage() {
                                 </p>
                             </div>
                             <div className="card-footer">
-                                <button onClick={() => goToDetailsPage(gift.id)} className="btn btn-primary w-100">
+                                <button
+                                    onClick={() => goToDetailsPage(gift.id)}
+                                    className="btn btn-primary w-100"
+                                >
                                     View Details
                                 </button>
                             </div>

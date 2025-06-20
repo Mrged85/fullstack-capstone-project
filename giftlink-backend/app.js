@@ -2,67 +2,76 @@
 require('dotenv').config();
 const express = require('express');
 const cors = require('cors');
-const pinoLogger = require('./logger'); // Importa o logger principal
-const path = require('path'); // Necessário para servir ficheiros estáticos
+const pinoLogger = require('./logger');
+const path = require('path');
 
 const connectToDatabase = require('./models/db');
-// const {loadData} = require("./util/import-mongo/index"); // Removido se não for usado. Mantém se tiveres um script de loadData aqui.
 
 const app = express();
 
-// Configuração do CORS: Muito Importante para permitir comunicação entre o frontend e backend
-// Usamos o URL exato do teu frontend para maior segurança, em vez de '*'.
-// Este URL foi obtido da mensagem de erro CORS anterior.
+const port = 3060;
+
+// ✅ CORS com todas as tuas possíveis origens
 app.use(cors({
-    origin: 'https://goncalodamas-3000.theiaopenshiftnext-1-labs-prod-theiaopenshift-4-tor01.proxy.cognitiveclass.ai', // URL EXATO DO TEU FRONTEND
+    origin: [
+        'https://goncalodamas-3000.theiadockernext-0-labs-prod-theiak8s-4-tor01.proxy.cognitiveclass.ai',
+        'https://goncalodamas-3000.theiaopenshiftnext-0-labs-prod-theiak8s-4-tor01.proxy.cognitiveclass.ai',
+        'https://goncalodamas-3000.theiaopenshiftnext-1-labs-prod-theiak8s-4-tor01.proxy.cognitiveclass.ai',
+        'http://localhost:3000'
+    ],
     methods: 'GET,HEAD,PUT,PATCH,POST,DELETE',
     credentials: true,
     optionsSuccessStatus: 204
 }));
 
-const port = 3060;
+// Conexão à base de dados
+connectToDatabase()
+    .then(() => {
+        pinoLogger.info('Connected to DB');
+    })
+    .catch((e) => {
+        pinoLogger.error('Failed to connect to DB', e);
+        process.exit(1);
+    });
 
-// Connect to MongoDB; we just do this one time
-connectToDatabase().then(() => {
-    pinoLogger.info('Connected to DB');
-})
-.catch((e) => pinoLogger.error('Failed to connect to DB', e)); // Agora usando pinoLogger para erros
+app.use(express.json());
 
-app.use(express.json()); // Middleware para fazer parse do JSON do corpo da requisição
-
-// Configuração para servir ficheiros estáticos:
-// - /images: serve ficheiros da pasta public/images (para imagens de presentes, etc.)
-// - Raiz: serve outros ficheiros estáticos da pasta public (se existirem)
+// Servir imagens estáticas
 app.use('/images', express.static(path.join(__dirname, 'public/images')));
 app.use(express.static('public'));
 
-// Middleware para logging de HTTP requests usando Pino
+// Logger de requisições
 const pinoHttp = require('pino-http');
-app.use(pinoHttp({ logger: pinoLogger })); // Usa a mesma instância do logger
+app.use(pinoHttp({ logger: pinoLogger }));
 
-// Route files
+// Rotas
 const giftRoutes = require('./routes/giftRoutes');
 const authRoutes = require('./routes/authRoutes');
 const searchRoutes = require('./routes/searchRoutes');
 
-// Use Routes
 app.use('/api/gifts', giftRoutes);
 app.use('/api/auth', authRoutes);
 app.use('/api/search', searchRoutes);
 
-// Global Error Handler
+// Tratamento de erros
 app.use((err, req, res, next) => {
-    pinoLogger.error(err); // Agora usando pinoLogger para o erro global
+    pinoLogger.error(err);
     res.status(500).send('Internal Server Error');
 });
 
-// **--- LINHAS CORRIGIDAS ABAIXO ---**
-app.get("/",(req,res)=>{
-    res.send("Inside the server"); // Adicionado ;
-}); // Adicionado ;
+// Rota de teste
+app.get("/", (req, res) => {
+    res.send("Inside the server");
+});
 
+// Logging manual das rotas
+app.use((req, res, next) => {
+    pinoLogger.info(`Request: ${req.method} ${req.url}`);
+    next();
+});
+
+// Lançar o servidor
 app.listen(port, () => {
     console.log(`Server running on port ${port}`);
     pinoLogger.info(`Server running on port ${port}`);
-}); // Adicionado ;
-// **--- LINHAS CORRIGIDAS ACIMA ---**
+});

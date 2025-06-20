@@ -1,5 +1,4 @@
-{
-  "docs": [
+[
     {
       "id": "875",
       "name": "Lamp",
@@ -209,4 +208,3 @@
       "image": "/images/filing-cabinet.jpeg"
     }
   ]
-}

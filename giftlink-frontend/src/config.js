@@ -1,8 +1,7 @@
-// giftlink-frontend/src/config.js
 const config = {
-    backendUrl: process.env.REACT_APP_BACKEND_URL,
-    imageUrl: process.env.REACT_APP_BACKEND_URL // Assumo que as imagens também vêm do backend
-};
-
-console.log(`backendUrl in config.js: ${config.backendUrl}`) // Excelente para depuração
-export {config as urlConfig}
+    backendUrl: 'https://goncalodamas-3060.theiadockernext-0-labs-prod-theiak8s-4-tor01.proxy.cognitiveclass.ai',
+    imageUrl: 'https://goncalodamas-3060.theiadockernext-0-labs-prod-theiak8s-4-tor01.proxy.cognitiveclass.ai'
+  };
+  
+  console.log(`backendUrl in config.js: ${config.backendUrl}`);
+  export { config as urlConfig };
